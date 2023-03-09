@@ -15,8 +15,24 @@ namespace Terrain
         public Color color;
     }
 
+    [System.Serializable]
+    public struct Preview
+    {
+        public GameObject mesh0;
+        public GameObject mesh1;
+        public GameObject mesh2;
+        public GameObject mesh3;
+        public enum Mode { NoiseMap, ColorMap, HeightMapSolo, HeightMap };
+        public Mode mode;
+        [Range(0, 6)]
+        public int LOD;
+    }
+
     public class MapGenerator : MonoBehaviour
     {
+        public const int chunkSize = 240;
+        public const int chunkVertices = 241;
+
         public int worldSize;
         [Range(0, 2)]
         public float scale = 1f;
@@ -27,26 +43,17 @@ namespace Terrain
         public float persistance;
         public float lacunarity;
 
-        public Transform parent;
-
-        public GameObject preview0Mesh;
-        public GameObject preview1Mesh;
-        public GameObject preview2Mesh;
-        public GameObject preview3Mesh;
-        public enum PreviewMode { NoiseMap, ColorMap, HeightMapSolo, HeightMap };
-        public PreviewMode previewMode;
-
-        public const int chunkSize = 240;
-        public const int chunkVertices = 241;
-        [Range(0, 6)]
-        public int previewLOD;
         public float noiseScale;
         public Vector2 offset;
 
         public float meshHeightMultiplier;
         public AnimationCurve meshHeightCurve;
 
+        public Transform parent;
+
         public TerrainType[] regions;
+
+        public Preview preview;
 
         public bool autoUpdate;
 
@@ -54,10 +61,10 @@ namespace Terrain
         {
             WorldTerrain.isPlaying = true;
 
-            preview0Mesh.SetActive(false);
-            preview1Mesh.SetActive(false);
-            preview2Mesh.SetActive(false);
-            preview3Mesh.SetActive(false);
+            preview.mesh0.SetActive(false);
+            preview.mesh1.SetActive(false);
+            preview.mesh2.SetActive(false);
+            preview.mesh3.SetActive(false);
 
             WorldTerrain t = FindObjectOfType<WorldTerrain>();
             t.GenerateMeshData(this);
@@ -65,8 +72,8 @@ namespace Terrain
 
         public void DrawTexture(Texture2D texture)
         {
-            preview0Mesh.GetComponent<MeshFilter>().sharedMesh = new MapData(this, chunkVertices, chunkVertices).GenerateMeshData(0, 0, previewLOD).CreateMesh();
-            preview0Mesh.GetComponent<MeshRenderer>().sharedMaterial.mainTexture = texture;
+            preview.mesh0.GetComponent<MeshFilter>().sharedMesh = new MapData(this, chunkVertices, chunkVertices).GenerateMeshData(0, 0, preview.LOD).CreateMesh();
+            preview.mesh0.GetComponent<MeshRenderer>().sharedMaterial.mainTexture = texture;
         }
 
         public void DrawMesh(GameObject obj, MeshData meshData, Texture2D texture)
@@ -84,57 +91,57 @@ namespace Terrain
 
             MapData mapData = new MapData(this, chunkVertices * 2, chunkVertices * 2);
 
-            preview0Mesh.SetActive(false);
-            preview1Mesh.SetActive(false);
-            preview2Mesh.SetActive(false);
-            preview3Mesh.SetActive(false);
+            preview.mesh0.SetActive(false);
+            preview.mesh1.SetActive(false);
+            preview.mesh2.SetActive(false);
+            preview.mesh3.SetActive(false);
 
-            preview0Mesh.transform.localScale = Vector3.one * scale;
-            preview1Mesh.transform.localScale = Vector3.one * scale;
-            preview2Mesh.transform.localScale = Vector3.one * scale;
-            preview3Mesh.transform.localScale = Vector3.one * scale;
+            preview.mesh0.transform.localScale = Vector3.one * scale;
+            preview.mesh1.transform.localScale = Vector3.one * scale;
+            preview.mesh2.transform.localScale = Vector3.one * scale;
+            preview.mesh3.transform.localScale = Vector3.one * scale;
 
-            if (previewMode == PreviewMode.NoiseMap)
+            if (preview.mode == Preview.Mode.NoiseMap)
             {
-                preview0Mesh.SetActive(true);
+                preview.mesh0.SetActive(true);
 
                 DrawTexture(TextureGenerator.TextureFromHeightMap(mapData));
             }
-            else if (previewMode == PreviewMode.ColorMap)
+            else if (preview.mode == Preview.Mode.ColorMap)
             {
-                preview0Mesh.SetActive(true);
+                preview.mesh0.SetActive(true);
 
                 DrawTexture(TextureGenerator.TextureFromColorMap(mapData, 0, 0, chunkSize, chunkSize));
             }
-            else if (previewMode == PreviewMode.HeightMapSolo)
+            else if (preview.mode == Preview.Mode.HeightMapSolo)
             {
-                preview0Mesh.SetActive(true);
+                preview.mesh0.SetActive(true);
 
                 Texture2D texture = TextureGenerator.TextureFromColorMap(mapData, 0, 0, chunkSize, chunkSize);
-                DrawMesh(preview0Mesh, mapData.GenerateMeshData(0, 0, previewLOD), texture);
+                DrawMesh(preview.mesh0, mapData.GenerateMeshData(0, 0, preview.LOD), texture);
             }
-            else if (previewMode == PreviewMode.HeightMap)
+            else if (preview.mode == Preview.Mode.HeightMap)
             {
-                preview0Mesh.SetActive(true);
-                preview1Mesh.SetActive(true);
-                preview2Mesh.SetActive(true);
-                preview3Mesh.SetActive(true);
+                preview.mesh0.SetActive(true);
+                preview.mesh1.SetActive(true);
+                preview.mesh2.SetActive(true);
+                preview.mesh3.SetActive(true);
 
-                preview2Mesh.transform.position = new Vector3(0f, 0f, chunkSize * -2f) * scale;
-                preview3Mesh.transform.position = new Vector3(0f, 0f, chunkSize * -2f) * scale;
+                preview.mesh2.transform.position = new Vector3(0f, 0f, chunkSize * -2f) * scale;
+                preview.mesh3.transform.position = new Vector3(0f, 0f, chunkSize * -2f) * scale;
 
                 // WARN offset: 1 -> 0
                 Texture2D texture0 = TextureGenerator.TextureFromColorMap(mapData, 0, 0, chunkSize, chunkSize);
-                DrawMesh(preview0Mesh, mapData.GenerateMeshData(0, 0, previewLOD), texture0);
+                DrawMesh(preview.mesh0, mapData.GenerateMeshData(0, 0, preview.LOD), texture0);
 
                 Texture2D texture1 = TextureGenerator.TextureFromColorMap(mapData, chunkSize, 0, chunkSize, chunkSize);
-                DrawMesh(preview1Mesh, mapData.GenerateMeshData(chunkSize, 0, previewLOD), texture1);
+                DrawMesh(preview.mesh1, mapData.GenerateMeshData(chunkSize, 0, preview.LOD), texture1);
 
                 Texture2D texture2 = TextureGenerator.TextureFromColorMap(mapData, 0, chunkSize, chunkSize, chunkSize);
-                DrawMesh(preview2Mesh, mapData.GenerateMeshData(0, chunkSize, 6), texture2);
+                DrawMesh(preview.mesh2, mapData.GenerateMeshData(0, chunkSize, 6), texture2);
 
                 Texture2D texture3 = TextureGenerator.TextureFromColorMap(mapData, chunkSize, chunkSize, chunkSize, chunkSize);
-                DrawMesh(preview3Mesh, mapData.GenerateMeshData(chunkSize, chunkSize, 6), texture3);
+                DrawMesh(preview.mesh3, mapData.GenerateMeshData(chunkSize, chunkSize, 6), texture3);
             }
         }
 
