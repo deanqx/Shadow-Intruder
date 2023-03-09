@@ -13,6 +13,7 @@ namespace Terrain
         [Range(0, 6)]
         public int lod;
         public float viewDistance;
+        public bool Collider;
     }
 
     public class WorldTerrain : MonoBehaviour
@@ -23,7 +24,8 @@ namespace Terrain
         const float sqrPlayerMoveThreshold = playerMoveThreshold * playerMoveThreshold;
 
         public bool updateEveryFrame;
-        public float scale = 1f;
+        [Range(0, 6)]
+        public int colliderLOD;
 
         public LODPreset[] detailLevels;
 
@@ -40,7 +42,7 @@ namespace Terrain
         Vector2 previousPlayerPos;
         void Update()
         {
-            Vector2 pos = new Vector2(player.position.x, player.position.z) / scale;
+            Vector2 pos = new Vector2(player.position.x, player.position.z) / seed.scale;
             bool generated = true;
 
             foreach (Chunk c in chunks)
@@ -67,7 +69,7 @@ namespace Terrain
             if (chunks != null && chunks.Length > 0)
                 foreach (Chunk c in chunks)
                 {
-                    Gizmos.DrawWireCube(c.bounds.center * scale, c.bounds.size * scale);
+                    Gizmos.DrawWireCube(c.bounds.center * seed.scale, c.bounds.size * seed.scale);
                 }
 
             Vector3 offset1 = Vector3.zero;
@@ -149,10 +151,12 @@ namespace Terrain
         {
             this.seed = seed;
 
-            chunkCount = seed.worldSize / MapGenerator.chunkVertices;
+            // TODO seed.worldSize /= scale
+
+            chunkCount = (int)((float)seed.worldSize / seed.scale) / MapGenerator.chunkVertices;
             mapVertices = chunkCount * MapGenerator.chunkVertices;
 
-            Vector2 pos = new Vector2(player.position.x, player.position.z) / scale;
+            Vector2 pos = new Vector2(player.position.x, player.position.z) / seed.scale;
 
             mapData = new MapData(seed, mapVertices, mapVertices);
 
@@ -168,12 +172,25 @@ namespace Terrain
                     Vector3 size = new Vector3(MapGenerator.chunkSize, 2f * seed.meshHeightMultiplier, MapGenerator.chunkSize);
 
                     chunks[x, y] = new Chunk(this, x, y, chunkOffsetX, chunkOffsetY, new Bounds(center, size));
+                }
+            }
 
-                    float distance = chunks[x, y].GetDistance(pos);
-                    int lod = chunks[x, y].GetLOD(distance, detailLevels);
-                    chunks[x, y].RequestMeshData(mapData, lod);
+            new Thread(() =>
+            {
+                for (int y = 0; y < chunkCount; ++y)
+                {
+                    for (int x = 0; x < chunkCount; ++x)
+                    {
+                        chunks[x, y].RequestMeshData(mapData);
+                    }
+                }
+            }).Start();
 
-                    chunks[x, y].meshRenderer.material.mainTexture = TextureGenerator.TextureFromColorMap(mapData, chunkOffsetX, chunkOffsetY, MapGenerator.chunkSize, MapGenerator.chunkSize);
+            for (int y = 0; y < chunkCount; ++y)
+            {
+                for (int x = 0; x < chunkCount; ++x)
+                {
+                    chunks[x, y].meshRenderer.material.mainTexture = TextureGenerator.TextureFromColorMap(mapData, chunks[x, y].chunkOffsetX, chunks[x, y].chunkOffsetY, MapGenerator.chunkSize, MapGenerator.chunkSize);
                 }
             }
         }
@@ -187,20 +204,28 @@ namespace Terrain
             {
                 for (int x = 0; x < width; ++x)
                 {
-                    float distance = chunks[x, y].GetDistance(pos);
-                    int lastLOD = chunks[x, y].lastLOD;
-                    int lod = chunks[x, y].GetLOD(distance, detailLevels);
+                    Chunk c = chunks[x, y];
 
-                    if (!chunks[x, y].loaded)
+                    float distance = c.GetDistance(pos);
+                    int lastLOD = c.lastLOD;
+                    int lod = c.GetLOD(distance, detailLevels);
+
+                    if (lod != lastLOD || updateEveryFrame)
                     {
-                        chunks[x, y].meshFilter.mesh = chunks[x, y].meshData.CreateMesh();
+                        int clod = lod + colliderLOD > 6 ? 6 : lod + colliderLOD;
 
-                        chunks[x, y].loaded = true;
-                    }
+                        if (c.meshLODs[lod] == null)
+                            c.meshLODs[lod] = c.meshDataLODs[lod].CreateMesh();
 
-                    if (lastLOD != lod)
-                    {
-                        chunks[x, y].RequestMeshData(mapData, lod);
+                        if (c.meshLODs[clod] == null)
+                            c.meshLODs[clod] = c.meshDataLODs[clod].CreateMesh();
+
+                        c.meshFilter.mesh = c.meshLODs[lod];
+
+                        if (c.collider)
+                            c.meshCollider.sharedMesh = c.meshLODs[clod];
+                        else
+                            c.meshCollider.sharedMesh = null;
                     }
                 }
             }
@@ -216,13 +241,16 @@ namespace Terrain
 
             public float lastPlayerDistance = -1;
             public int lastLOD = -1;
-            public bool loaded = false;
             public bool generated = false;
+            public bool collider = false;
+
+            public MeshData[] meshDataLODs = new MeshData[7];
+            public Mesh[] meshLODs = new Mesh[7];
 
             public GameObject meshObject;
-            public MeshData meshData;
             public MeshRenderer meshRenderer;
             public MeshFilter meshFilter;
+            public MeshCollider meshCollider;
 
             public Chunk(WorldTerrain p, int x, int y, int chunkOffsetX, int chunkOffsetY, Bounds bounds)
             {
@@ -235,11 +263,38 @@ namespace Terrain
                 meshObject = new GameObject("Terrain Chunk");
                 meshFilter = meshObject.AddComponent<MeshFilter>();
                 meshRenderer = meshObject.AddComponent<MeshRenderer>();
+                meshCollider = meshObject.AddComponent<MeshCollider>();
                 meshRenderer.material = p.mapMaterial;
 
-                meshObject.transform.position = new Vector3(0f, 0f, chunkOffsetY * -2f) * p.scale;
-                meshObject.transform.localScale = Vector3.one * p.scale;
+                // TODO Remove this
+                meshObject.transform.position = new Vector3(0f, 0f, chunkOffsetY * -2f) * p.seed.scale;
+                meshObject.transform.localScale = Vector3.one * p.seed.scale;
                 meshObject.transform.parent = p.seed.parent;
+            }
+
+            public void RequestMeshData(MapData mapData)
+            {
+                Task.Run(() =>
+                {
+                    generated = false;
+                    for (int i = 0; i < meshDataLODs.Length; ++i)
+                    {
+                        meshDataLODs[i] = mapData.GenerateMeshData(chunkOffsetX, chunkOffsetY, i);
+                    }
+                    generated = true;
+                });
+            }
+            public void oldRequestMeshData(MapData mapData)
+            {
+                new Thread(() =>
+                {
+                    generated = false;
+                    for (int i = 0; i < meshDataLODs.Length; ++i)
+                    {
+                        meshDataLODs[i] = mapData.GenerateMeshData(chunkOffsetX, chunkOffsetY, i);
+                    }
+                    generated = true;
+                }).Start();
             }
 
             public float GetDistance(Vector2 pos)
@@ -253,36 +308,21 @@ namespace Terrain
             public int GetLOD(float playerDistance, LODPreset[] detailLevels)
             {
                 int lod = 6;
+                bool collider = false;
+
                 for (int i = 0; i < detailLevels.Length; ++i)
                 {
                     if (playerDistance <= detailLevels[i].viewDistance)
                     {
                         lod = detailLevels[i].lod;
+                        collider = detailLevels[i].Collider;
                         break;
                     }
                 }
 
                 lastLOD = lod;
+                this.collider = collider;
                 return lod;
-            }
-
-            bool requested = false;
-            public void RequestMeshData(MapData mapData, int lod)
-            {
-                if (!requested)
-                {
-                    requested = true;
-
-                    new Thread(() =>
-                    {
-                        generated = false;
-                        meshData = mapData.GenerateMeshData(chunkOffsetX, chunkOffsetY, lod, true);
-                        generated = true;
-
-                        loaded = false;
-                        requested = false;
-                    }).Start();
-                }
             }
         }
     }

@@ -18,6 +18,8 @@ namespace Terrain
     public class MapGenerator : MonoBehaviour
     {
         public int worldSize;
+        [Range(0, 2)]
+        public float scale = 1f;
         public int seed;
 
         public int octaves;
@@ -47,8 +49,6 @@ namespace Terrain
         public TerrainType[] regions;
 
         public bool autoUpdate;
-        // TEMP borderNormals
-        public bool borderNormals;
 
         public void Start()
         {
@@ -65,7 +65,7 @@ namespace Terrain
 
         public void DrawTexture(Texture2D texture)
         {
-            preview0Mesh.GetComponent<MeshFilter>().sharedMesh = new MapData(this, chunkVertices, chunkVertices).GenerateMeshData(0, 0, previewLOD, borderNormals).CreateMesh();
+            preview0Mesh.GetComponent<MeshFilter>().sharedMesh = new MapData(this, chunkVertices, chunkVertices).GenerateMeshData(0, 0, previewLOD).CreateMesh();
             preview0Mesh.GetComponent<MeshRenderer>().sharedMaterial.mainTexture = texture;
         }
 
@@ -89,6 +89,11 @@ namespace Terrain
             preview2Mesh.SetActive(false);
             preview3Mesh.SetActive(false);
 
+            preview0Mesh.transform.localScale = Vector3.one * scale;
+            preview1Mesh.transform.localScale = Vector3.one * scale;
+            preview2Mesh.transform.localScale = Vector3.one * scale;
+            preview3Mesh.transform.localScale = Vector3.one * scale;
+
             if (previewMode == PreviewMode.NoiseMap)
             {
                 preview0Mesh.SetActive(true);
@@ -106,7 +111,7 @@ namespace Terrain
                 preview0Mesh.SetActive(true);
 
                 Texture2D texture = TextureGenerator.TextureFromColorMap(mapData, 0, 0, chunkSize, chunkSize);
-                DrawMesh(preview0Mesh, mapData.GenerateMeshData(0, 0, previewLOD, borderNormals), texture);
+                DrawMesh(preview0Mesh, mapData.GenerateMeshData(0, 0, previewLOD), texture);
             }
             else if (previewMode == PreviewMode.HeightMap)
             {
@@ -115,18 +120,21 @@ namespace Terrain
                 preview2Mesh.SetActive(true);
                 preview3Mesh.SetActive(true);
 
+                preview2Mesh.transform.position = new Vector3(0f, 0f, chunkSize * -2f) * scale;
+                preview3Mesh.transform.position = new Vector3(0f, 0f, chunkSize * -2f) * scale;
+
                 // WARN offset: 1 -> 0
                 Texture2D texture0 = TextureGenerator.TextureFromColorMap(mapData, 0, 0, chunkSize, chunkSize);
-                DrawMesh(preview0Mesh, mapData.GenerateMeshData(0, 0, previewLOD, borderNormals), texture0);
+                DrawMesh(preview0Mesh, mapData.GenerateMeshData(0, 0, previewLOD), texture0);
 
                 Texture2D texture1 = TextureGenerator.TextureFromColorMap(mapData, chunkSize, 0, chunkSize, chunkSize);
-                DrawMesh(preview1Mesh, mapData.GenerateMeshData(chunkSize, 0, previewLOD, borderNormals), texture1);
+                DrawMesh(preview1Mesh, mapData.GenerateMeshData(chunkSize, 0, previewLOD), texture1);
 
                 Texture2D texture2 = TextureGenerator.TextureFromColorMap(mapData, 0, chunkSize, chunkSize, chunkSize);
-                DrawMesh(preview2Mesh, mapData.GenerateMeshData(0, chunkSize, 6, borderNormals), texture2);
+                DrawMesh(preview2Mesh, mapData.GenerateMeshData(0, chunkSize, 6), texture2);
 
                 Texture2D texture3 = TextureGenerator.TextureFromColorMap(mapData, chunkSize, chunkSize, chunkSize, chunkSize);
-                DrawMesh(preview3Mesh, mapData.GenerateMeshData(chunkSize, chunkSize, 6, borderNormals), texture3);
+                DrawMesh(preview3Mesh, mapData.GenerateMeshData(chunkSize, chunkSize, 6), texture3);
             }
         }
 

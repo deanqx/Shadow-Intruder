@@ -61,7 +61,7 @@ namespace Terrain
             }
         }
 
-        public void RecalculateNormals(bool border)
+        public void RecalculateNormals()
         {
             if (!WorldTerrain.isPlaying)
             {
@@ -80,27 +80,26 @@ namespace Terrain
                 normals[vertexIndexC] += triangleNormal;
             }
 
-            if (border)
-                for (int i = 0; i < borderTriangles.Length; i += 3)
-                {
-                    int vertexIndexA = borderTriangles[i];
-                    int vertexIndexB = borderTriangles[i + 1];
-                    int vertexIndexC = borderTriangles[i + 2];
+            for (int i = 0; i < borderTriangles.Length; i += 3)
+            {
+                int vertexIndexA = borderTriangles[i];
+                int vertexIndexB = borderTriangles[i + 1];
+                int vertexIndexC = borderTriangles[i + 2];
 
-                    Vector3 triangleNormal = SurfaceNormal(vertexIndexA, vertexIndexB, vertexIndexC);
-                    if (vertexIndexA >= 0)
-                    {
-                        normals[vertexIndexA] += triangleNormal;
-                    }
-                    if (vertexIndexB >= 0)
-                    {
-                        normals[vertexIndexB] += triangleNormal;
-                    }
-                    if (vertexIndexC >= 0)
-                    {
-                        normals[vertexIndexC] += triangleNormal;
-                    }
+                Vector3 triangleNormal = SurfaceNormal(vertexIndexA, vertexIndexB, vertexIndexC);
+                if (vertexIndexA >= 0)
+                {
+                    normals[vertexIndexA] += triangleNormal;
                 }
+                if (vertexIndexB >= 0)
+                {
+                    normals[vertexIndexB] += triangleNormal;
+                }
+                if (vertexIndexC >= 0)
+                {
+                    normals[vertexIndexC] += triangleNormal;
+                }
+            }
 
             for (int i = 0; i < normals.Length; ++i)
             {

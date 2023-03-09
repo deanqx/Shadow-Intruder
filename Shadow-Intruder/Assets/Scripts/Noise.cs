@@ -40,8 +40,8 @@ namespace Terrain
 
                     for (int i = 0; i < octaves; ++i)
                     {
-                        float sampleX = (x + octaveOffsets[i].x) / scale * frequency;
-                        float sampleY = (y + octaveOffsets[i].y) / scale * frequency;
+                        float sampleX = x / scale * frequency + octaveOffsets[i].x * frequency;
+                        float sampleY = y / scale * frequency - octaveOffsets[i].y * frequency;
 
                         float perlinValue = Mathf.PerlinNoise(sampleX, sampleY);
                         // float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
@@ -160,8 +160,11 @@ namespace Terrain
 
                     for (int i = 0; i < octaves; ++i)
                     {
-                        float sampleX = (x + octaveOffsets[i].x) / scale * frequency;
-                        float sampleY = (y + offsetY + octaveOffsets[i].y) / scale * frequency;
+                        // WARN Fixed Noise Scale
+                        // float sampleX = (x + octaveOffsets[i].x) / scale * frequency;
+                        // float sampleY = (y + offsetY + octaveOffsets[i].y) / scale * frequency;
+                        float sampleX = x / scale * frequency + octaveOffsets[i].x * frequency;
+                        float sampleY = (y + offsetY) / scale * frequency - octaveOffsets[i].y * frequency;
 
                         float perlinValue = Mathf.PerlinNoise(sampleX, sampleY);
                         noiseHeight += perlinValue * amplitude;

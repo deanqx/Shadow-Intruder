@@ -26,7 +26,7 @@ namespace Terrain
             heightMap = new float[width, height];
             colorMap = new Color[width * height];
 
-
+            // PERF Generate noise for every chunk (Mesh generation will break)
             heightMap = Noise.FastGenerateNoiseMap(width, height, seed.seed, seed.noiseScale, seed.octaves, seed.persistance, seed.lacunarity, seed.offset);
 
             for (int y = 0; y < verticesY; ++y)
@@ -46,7 +46,7 @@ namespace Terrain
             }
         }
 
-        public MeshData GenerateMeshData(int offsetX, int offsetY, int lod, bool border)
+        public MeshData GenerateMeshData(int offsetX, int offsetY, int lod)
         {
             if (!WorldTerrain.isPlaying)
             {
@@ -124,7 +124,7 @@ namespace Terrain
                 }
             }
 
-            meshData.RecalculateNormals(border);
+            meshData.RecalculateNormals();
 
             return meshData;
         }
