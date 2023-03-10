@@ -7,15 +7,6 @@ using System.Collections.Generic;
 namespace Terrain
 {
     [System.Serializable]
-    public struct TerrainType
-    {
-        public string name;
-        [Range(0, 1)]
-        public float height;
-        public Color color;
-    }
-
-    [System.Serializable]
     public struct Preview
     {
         public GameObject mesh0;
@@ -34,28 +25,33 @@ namespace Terrain
         public const int chunkVertices = 241;
 
         public int worldSize;
+        public int seed;
         [Range(0, 2)]
         public float scale = 1f;
-        public int seed;
 
-        public int octaves;
-        [Range(0, 1)]
-        public float persistance;
-        public float lacunarity;
-
-        public float noiseScale;
-        public Vector2 offset;
-
-        public float meshHeightMultiplier;
-        public AnimationCurve meshHeightCurve;
+        public NoiseData noiseData;
 
         public Transform parent;
-
-        public TerrainType[] regions;
-
         public Preview preview;
 
         public bool autoUpdate;
+
+        void OnValuesUpdated()
+        {
+            if (!Application.isPlaying)
+            {
+                DrawMapInEditor();
+            }
+        }
+
+        void OnValidate()
+        {
+            if (noiseData != null)
+            {
+                noiseData.OnValuesUpdated -= OnValuesUpdated;
+                noiseData.OnValuesUpdated += OnValuesUpdated;
+            }
+        }
 
         public void Start()
         {
@@ -67,12 +63,12 @@ namespace Terrain
             preview.mesh3.SetActive(false);
 
             WorldTerrain t = FindObjectOfType<WorldTerrain>();
-            t.GenerateMeshData(this);
+            t.GenerateMeshData(this, noiseData);
         }
 
         public void DrawTexture(Texture2D texture)
         {
-            preview.mesh0.GetComponent<MeshFilter>().sharedMesh = new MapData(this, chunkVertices, chunkVertices).GenerateMeshData(0, 0, preview.LOD).CreateMesh();
+            preview.mesh0.GetComponent<MeshFilter>().sharedMesh = new MapData(seed, noiseData, chunkVertices, chunkVertices).GenerateMeshData(0, 0, preview.LOD).CreateMesh();
             preview.mesh0.GetComponent<MeshRenderer>().sharedMaterial.mainTexture = texture;
         }
 
@@ -89,7 +85,7 @@ namespace Terrain
             WorldTerrain.normals = new List<List<Vector3[]>>();
             WorldTerrain.borderTriangles = new List<List<Vector3[,]>>();
 
-            MapData mapData = new MapData(this, chunkVertices * 2, chunkVertices * 2);
+            MapData mapData = new MapData(seed, noiseData, chunkVertices * 2, chunkVertices * 2);
 
             preview.mesh0.SetActive(false);
             preview.mesh1.SetActive(false);
@@ -140,14 +136,6 @@ namespace Terrain
                 Texture2D texture3 = TextureGenerator.TextureFromColorMap(mapData, chunkSize, chunkSize, chunkSize, chunkSize);
                 DrawMesh(preview.mesh3, mapData.GenerateMeshData(chunkSize, chunkSize, 6), texture3);
             }
-        }
-
-        void OnValidate()
-        {
-            if (octaves < 0)
-                octaves = 0;
-            if (lacunarity < 1f)
-                lacunarity = 1f;
         }
     }
 }

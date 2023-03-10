@@ -63,7 +63,7 @@ namespace Terrain
 
         public void RecalculateNormals()
         {
-            // TODO Shadows look like blocks on high scale
+            // TODO Shadows look like blocks (I think vertices has be aligned in a square format)
 
             if (!WorldTerrain.isPlaying)
             {

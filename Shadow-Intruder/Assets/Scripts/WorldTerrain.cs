@@ -32,7 +32,7 @@ namespace Terrain
         public Transform player;
         public Material mapMaterial;
 
-        MapGenerator seed;
+        MapGenerator overall;
         MapData mapData;
 
         Chunk[,] chunks;
@@ -42,7 +42,7 @@ namespace Terrain
         Vector2 previousPlayerPos;
         void Update()
         {
-            Vector2 pos = new Vector2(player.position.x, player.position.z) / seed.scale;
+            Vector2 pos = new Vector2(player.position.x, player.position.z) / overall.scale;
             bool generated = true;
 
             foreach (Chunk c in chunks)
@@ -69,7 +69,7 @@ namespace Terrain
             if (chunks != null && chunks.Length > 0)
                 foreach (Chunk c in chunks)
                 {
-                    Gizmos.DrawWireCube(c.bounds.center * seed.scale, c.bounds.size * seed.scale);
+                    Gizmos.DrawWireCube(c.bounds.center * overall.scale, c.bounds.size * overall.scale);
                 }
 
             Vector3 offset1 = Vector3.zero;
@@ -147,16 +147,16 @@ namespace Terrain
                 }
         }
 
-        public void GenerateMeshData(MapGenerator seed)
+        public void GenerateMeshData(MapGenerator overall, NoiseData noiseData)
         {
-            this.seed = seed;
+            this.overall = overall;
 
-            chunkCount = (int)((float)seed.worldSize / seed.scale) / MapGenerator.chunkVertices;
+            chunkCount = (int)((float)overall.worldSize / overall.scale) / MapGenerator.chunkVertices;
             mapVertices = chunkCount * MapGenerator.chunkVertices;
 
-            Vector2 pos = new Vector2(player.position.x, player.position.z) / seed.scale;
+            Vector2 pos = new Vector2(player.position.x, player.position.z) / overall.scale;
 
-            mapData = new MapData(seed, mapVertices, mapVertices);
+            mapData = new MapData(overall.seed, noiseData, mapVertices, mapVertices);
 
             chunks = new Chunk[chunkCount, chunkCount];
             for (int y = 0; y < chunkCount; ++y)
@@ -167,7 +167,7 @@ namespace Terrain
                     int chunkOffsetY = y * MapGenerator.chunkSize;
 
                     Vector3 center = new Vector3((float)MapGenerator.chunkSize / 2f + (float)chunkOffsetX, 0, (float)MapGenerator.chunkSize / -2f - (float)chunkOffsetY);
-                    Vector3 size = new Vector3(MapGenerator.chunkSize, 2f * seed.meshHeightMultiplier, MapGenerator.chunkSize);
+                    Vector3 size = new Vector3(MapGenerator.chunkSize, 2f * noiseData.meshHeightMultiplier, MapGenerator.chunkSize);
 
                     chunks[x, y] = new Chunk(this, x, y, chunkOffsetX, chunkOffsetY, new Bounds(center, size));
                 }
@@ -264,8 +264,8 @@ namespace Terrain
                 meshCollider = meshObject.AddComponent<MeshCollider>();
                 meshRenderer.material = p.mapMaterial;
 
-                meshObject.transform.localScale = Vector3.one * p.seed.scale;
-                meshObject.transform.parent = p.seed.parent;
+                meshObject.transform.localScale = Vector3.one * p.overall.scale;
+                meshObject.transform.parent = p.overall.parent;
             }
 
             public void RequestMeshData(MapData mapData)
