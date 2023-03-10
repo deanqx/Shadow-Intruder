@@ -127,9 +127,6 @@ namespace Terrain
                 preview.mesh2.SetActive(true);
                 preview.mesh3.SetActive(true);
 
-                preview.mesh2.transform.position = new Vector3(0f, 0f, chunkSize * -2f) * scale;
-                preview.mesh3.transform.position = new Vector3(0f, 0f, chunkSize * -2f) * scale;
-
                 // WARN offset: 1 -> 0
                 Texture2D texture0 = TextureGenerator.TextureFromColorMap(mapData, 0, 0, chunkSize, chunkSize);
                 DrawMesh(preview.mesh0, mapData.GenerateMeshData(0, 0, preview.LOD), texture0);

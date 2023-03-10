@@ -63,6 +63,8 @@ namespace Terrain
 
         public void RecalculateNormals()
         {
+            // TODO Shadows look like blocks on high scale
+
             if (!WorldTerrain.isPlaying)
             {
                 WorldTerrain.normals.Add(new List<Vector3[]>());
@@ -126,9 +128,9 @@ namespace Terrain
                 if (a < 0 || b < 0 || c < 0)
                     WorldTerrain.borderTriangles.Last().Add(new Vector3[3, 2]
                     {
-                { pointA, pointB },
-                { pointB, pointC },
-                { pointC, pointA }
+                        { pointA, pointB },
+                        { pointB, pointC },
+                        { pointC, pointA }
                     });
             }
 

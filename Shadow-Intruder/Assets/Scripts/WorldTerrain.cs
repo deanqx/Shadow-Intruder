@@ -151,8 +151,6 @@ namespace Terrain
         {
             this.seed = seed;
 
-            // TODO seed.worldSize /= scale
-
             chunkCount = (int)((float)seed.worldSize / seed.scale) / MapGenerator.chunkVertices;
             mapVertices = chunkCount * MapGenerator.chunkVertices;
 
@@ -266,8 +264,6 @@ namespace Terrain
                 meshCollider = meshObject.AddComponent<MeshCollider>();
                 meshRenderer.material = p.mapMaterial;
 
-                // TODO Remove this
-                meshObject.transform.position = new Vector3(0f, 0f, chunkOffsetY * -2f) * p.seed.scale;
                 meshObject.transform.localScale = Vector3.one * p.seed.scale;
                 meshObject.transform.parent = p.seed.parent;
             }

@@ -26,10 +26,6 @@ namespace Terrain
             float maxHeight = float.MinValue;
             float minHeight = float.MaxValue;
 
-            // WARN Why needed?
-            // float halfWidth = width / 2f;
-            // float halfHeight = height / 2f;
-
             for (int y = 0; y < height; ++y)
             {
                 for (int x = 0; x < width; ++x)
@@ -40,11 +36,10 @@ namespace Terrain
 
                     for (int i = 0; i < octaves; ++i)
                     {
-                        float sampleX = x / scale * frequency + octaveOffsets[i].x * frequency;
-                        float sampleY = y / scale * frequency - octaveOffsets[i].y * frequency;
+                        float sampleX = (x + octaveOffsets[i].x) / scale * frequency;
+                        float sampleY = (y + octaveOffsets[i].y) / scale * frequency;
 
                         float perlinValue = Mathf.PerlinNoise(sampleX, sampleY);
-                        // float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
                         noiseHeight += perlinValue * amplitude;
 
                         amplitude *= persistance;
@@ -160,11 +155,8 @@ namespace Terrain
 
                     for (int i = 0; i < octaves; ++i)
                     {
-                        // WARN Fixed Noise Scale
-                        // float sampleX = (x + octaveOffsets[i].x) / scale * frequency;
-                        // float sampleY = (y + offsetY + octaveOffsets[i].y) / scale * frequency;
-                        float sampleX = x / scale * frequency + octaveOffsets[i].x * frequency;
-                        float sampleY = (y + offsetY) / scale * frequency - octaveOffsets[i].y * frequency;
+                        float sampleX = (x + octaveOffsets[i].x) / scale * frequency;
+                        float sampleY = (y + offsetY + octaveOffsets[i].y) / scale * frequency;
 
                         float perlinValue = Mathf.PerlinNoise(sampleX, sampleY);
                         noiseHeight += perlinValue * amplitude;

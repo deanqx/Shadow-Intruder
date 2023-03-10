@@ -55,6 +55,7 @@ namespace Terrain
 
             AnimationCurve _meshHeightCurve = new AnimationCurve(seed.meshHeightCurve.keys);
 
+            // TODO Optional: Add division by average
             int division = (lod == 0) ? 1 : lod * 2;
 
             int vertexCount = MapGenerator.chunkSize / division + 1;
@@ -107,7 +108,7 @@ namespace Terrain
                     }
 
                     float height = _meshHeightCurve.Evaluate(heightMap[(int)local.x + offsetX + 12, (int)local.y + offsetY + 12]) * seed.meshHeightMultiplier;
-                    Vector3 global = new Vector3(offsetX + local.x, height, offsetY - local.y);
+                    Vector3 global = new Vector3(offsetX + local.x, height, - offsetY - local.y);
 
                     meshData.AddVertex(global, uv, index);
 
