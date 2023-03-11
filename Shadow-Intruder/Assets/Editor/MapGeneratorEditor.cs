@@ -22,6 +22,12 @@ namespace Terrain
             {
                 mapGen.DrawMapInEditor();
             }
+
+            if (GUILayout.Button("Random"))
+            {
+                mapGen.seed = new System.Random().Next(0, 9999);
+                mapGen.DrawMapInEditor();
+            }
         }
     }
 

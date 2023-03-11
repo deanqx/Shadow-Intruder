@@ -5,7 +5,7 @@ namespace Terrain
 {
     public class MapData
     {
-        NoiseData noiseData;
+        Noise noise;
 
         public float[,] heightMap;
         public Color[] colorMap;
@@ -15,9 +15,9 @@ namespace Terrain
         public int width;
         public int height;
 
-        public MapData(int seed, NoiseData noiseData, int verticesX, int verticesY)
+        public MapData(int seed, Noise noise, int verticesX, int verticesY)
         {
-            this.noiseData = noiseData;
+            this.noise = noise;
             this.verticesX = verticesX;
             this.verticesY = verticesY;
             width = verticesX + 23; // WARN 23 = 24(border vertices) - 1
@@ -27,18 +27,31 @@ namespace Terrain
             colorMap = new Color[width * height];
 
             // PERF Generate noise for every chunk (Mesh generation will break)
-            heightMap = Noise.FastGenerateNoiseMap(width, height, seed, noiseData.noiseScale, noiseData.octaves, noiseData.persistance, noiseData.lacunarity, noiseData.offset);
+            heightMap = noise.FastGenerateNoiseMap(width, height, seed);
+
+            if (noise.falloff)
+            {
+                float[,] falloffMap = noise.GenerateFalloffMap(width, height);
+
+                for (int y = 0; y < height; ++y)
+                {
+                    for (int x = 0; x < width; ++x)
+                    {
+                        heightMap[x, y] -= falloffMap[x, y];
+                    }
+                }
+            }
 
             for (int y = 0; y < verticesY; ++y)
             {
                 for (int x = 0; x < verticesX; ++x)
                 {
                     float currentHeight = heightMap[x + 12, y + 12];
-                    for (int i = 0; i < noiseData.regions.Length; ++i)
+                    for (int i = 0; i < noise.regions.Length; ++i)
                     {
-                        if (currentHeight <= noiseData.regions[i].height)
+                        if (currentHeight <= noise.regions[i].height)
                         {
-                            colorMap[y * verticesX + x] = noiseData.regions[i].color;
+                            colorMap[y * verticesX + x] = noise.regions[i].color;
                             break;
                         }
                     }
@@ -53,7 +66,7 @@ namespace Terrain
                 WorldTerrain.borderTriangles.Add(new List<Vector3[,]>());
             }
 
-            AnimationCurve _meshHeightCurve = new AnimationCurve(noiseData.meshHeightCurve.keys);
+            AnimationCurve _meshHeightCurve = new AnimationCurve(noise.meshHeightCurve.keys);
 
             // TODO Optional: Add division by average
             int division = (lod == 0) ? 1 : lod * 2;
@@ -107,8 +120,11 @@ namespace Terrain
                         uv = new Vector2((float)x / (float)(vertexCount - 1), (float)y / (float)(vertexCount - 1));
                     }
 
-                    float height = _meshHeightCurve.Evaluate(heightMap[(int)local.x + offsetX + 12, (int)local.y + offsetY + 12]) * noiseData.meshHeightMultiplier;
-                    Vector3 global = new Vector3(offsetX + local.x, height, - offsetY - local.y);
+                    int mapX = (int)local.x + offsetX + 12;
+                    int mapY = (int)local.y + offsetY + 12;
+                    float height = _meshHeightCurve.Evaluate(heightMap[mapX, mapY]) * noise.meshHeightMultiplier;
+
+                    Vector3 global = new Vector3(offsetX + local.x, height, -offsetY - local.y);
 
                     meshData.AddVertex(global, uv, index);
 

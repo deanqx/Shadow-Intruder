@@ -56,7 +56,7 @@ namespace Terrain
             {
                 previousPlayerPos = pos;
 
-                UpdateChunks(mapData, pos);
+                UpdateChunks(pos);
             }
         }
 
@@ -147,7 +147,7 @@ namespace Terrain
                 }
         }
 
-        public void GenerateMeshData(MapGenerator overall, NoiseData noiseData)
+        public void GenerateMeshData(MapGenerator overall, Noise noise)
         {
             this.overall = overall;
 
@@ -156,7 +156,7 @@ namespace Terrain
 
             Vector2 pos = new Vector2(player.position.x, player.position.z) / overall.scale;
 
-            mapData = new MapData(overall.seed, noiseData, mapVertices, mapVertices);
+            mapData = new MapData(overall.seed, noise, mapVertices, mapVertices);
 
             chunks = new Chunk[chunkCount, chunkCount];
             for (int y = 0; y < chunkCount; ++y)
@@ -167,7 +167,7 @@ namespace Terrain
                     int chunkOffsetY = y * MapGenerator.chunkSize;
 
                     Vector3 center = new Vector3((float)MapGenerator.chunkSize / 2f + (float)chunkOffsetX, 0, (float)MapGenerator.chunkSize / -2f - (float)chunkOffsetY);
-                    Vector3 size = new Vector3(MapGenerator.chunkSize, 2f * noiseData.meshHeightMultiplier, MapGenerator.chunkSize);
+                    Vector3 size = new Vector3(MapGenerator.chunkSize, 2f * noise.meshHeightMultiplier, MapGenerator.chunkSize);
 
                     chunks[x, y] = new Chunk(this, x, y, chunkOffsetX, chunkOffsetY, new Bounds(center, size));
                 }
@@ -188,12 +188,12 @@ namespace Terrain
             {
                 for (int x = 0; x < chunkCount; ++x)
                 {
-                    chunks[x, y].meshRenderer.material.mainTexture = TextureGenerator.TextureFromColorMap(mapData, chunks[x, y].chunkOffsetX, chunks[x, y].chunkOffsetY, MapGenerator.chunkSize, MapGenerator.chunkSize);
+                    chunks[x, y].meshRenderer.material.mainTexture = TextureGenerator.TextureFromColorMap(mapData.colorMap, mapData.verticesX, chunks[x, y].chunkOffsetX, chunks[x, y].chunkOffsetY, MapGenerator.chunkSize, MapGenerator.chunkSize);
                 }
             }
         }
 
-        public void UpdateChunks(MapData mapData, Vector2 pos)
+        public void UpdateChunks(Vector2 pos)
         {
             int width = chunks.GetLength(0);
             int height = chunks.GetLength(1);
@@ -279,18 +279,6 @@ namespace Terrain
                     }
                     generated = true;
                 });
-            }
-            public void oldRequestMeshData(MapData mapData)
-            {
-                new Thread(() =>
-                {
-                    generated = false;
-                    for (int i = 0; i < meshDataLODs.Length; ++i)
-                    {
-                        meshDataLODs[i] = mapData.GenerateMeshData(chunkOffsetX, chunkOffsetY, i);
-                    }
-                    generated = true;
-                }).Start();
             }
 
             public float GetDistance(Vector2 pos)
