@@ -21,7 +21,7 @@ namespace Terrain
         public float falloffTransition;
         public float falloffBias;
         public Vector2 offset;
-        public float meshHeightMultiplier;
+        public float meshHeightMultiplier = 1f;
 
         public AnimationCurve meshHeightCurve;
         public NoiseLayer[] noiseLayers;
@@ -97,8 +97,8 @@ namespace Terrain
         public enum NoiseType { Perlin, Rigid };
         public NoiseType noiseType;
         [Range(0.1f, 2f)]
-        public float strenght = 1;
-        public bool enabled;
+        public float strenght = 1f;
+        public bool enabled = true;
 
         [Space(15)]
 

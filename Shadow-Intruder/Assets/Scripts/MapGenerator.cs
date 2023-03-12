@@ -28,7 +28,7 @@ namespace Terrain
 
         public int worldSize;
         public int seed;
-        [Range(0, 2)]
+        [Range(0, 8)]
         public float scale = 1f;
 
         public Noise noisePreset;

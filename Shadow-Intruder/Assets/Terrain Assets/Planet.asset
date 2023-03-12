@@ -12,20 +12,76 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c28840e4256f6a544b5e3ce40f3d507e, type: 3}
   m_Name: Planet
   m_EditorClassIdentifier: 
-  autoUpdate: 0
+  autoUpdate: 1
   falloff: 0
   falloffTransition: 0
   falloffBias: 0
-  octaves: 0
-  persistance: 0
-  lacunarity: 1
-  noiseScale: 0.0001
   offset: {x: 0, y: 0}
-  meshHeightMultiplier: 0
+  meshHeightMultiplier: 150
   meshHeightCurve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.299088
+      value: 0.299088
+      inSlope: 0.21824484
+      outSlope: 0.21824484
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.49910152
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  regions: []
+  noiseLayers:
+  - noiseType: 0
+    strenght: 1
+    enabled: 1
+    octaves: 16
+    persistance: 0.843
+    lacunarity: 1.203
+    noiseScale: 300
+  - noiseType: 1
+    strenght: 1
+    enabled: 1
+    octaves: 4
+    persistance: 0.663
+    lacunarity: 1.5
+    noiseScale: 300
+  regions:
+  - name: 
+    height: 0.233
+    color: {r: 0.8396226, g: 0.7722944, b: 0.7722944, a: 0}
+  - name: 
+    height: 0.374
+    color: {r: 0.3490566, g: 0.15312387, b: 0.15312387, a: 0}
+  - name: 
+    height: 0.506
+    color: {r: 0.5566038, g: 0.48805445, b: 0.46996263, a: 0}
+  - name: 
+    height: 0.555
+    color: {r: 0.26415092, g: 0.26041293, b: 0.2619081, a: 0}
+  - name: 
+    height: 0.725
+    color: {r: 0.6509434, g: 0.5004895, b: 0.5328132, a: 0}
+  - name: 
+    height: 1
+    color: {r: 0.8207547, g: 0.7859113, b: 0.7932468, a: 0}
