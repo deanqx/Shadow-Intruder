@@ -17,6 +17,9 @@ namespace Terrain
 
         public MapData(int seed, Noise noise, int verticesX, int verticesY)
         {
+            if (seed < 0)
+                seed = new System.Random().Next(0, 9999);
+
             this.noise = noise;
             this.verticesX = verticesX;
             this.verticesY = verticesY;
@@ -27,20 +30,7 @@ namespace Terrain
             colorMap = new Color[width * height];
 
             // PERF Generate noise for every chunk (Mesh generation will break)
-            heightMap = noise.FastGenerateNoiseMap(width, height, seed);
-
-            if (noise.falloff)
-            {
-                float[,] falloffMap = noise.GenerateFalloffMap(width, height);
-
-                for (int y = 0; y < height; ++y)
-                {
-                    for (int x = 0; x < width; ++x)
-                    {
-                        heightMap[x, y] -= falloffMap[x, y];
-                    }
-                }
-            }
+            heightMap = noise.GenerateNoiseMap(width, height, seed);
 
             for (int y = 0; y < verticesY; ++y)
             {

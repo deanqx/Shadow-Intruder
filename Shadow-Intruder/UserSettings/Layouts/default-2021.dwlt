@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 2560
     height: 1349
   m_ShowMode: 4
-  m_Title: Scene
+  m_Title: Project
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -274,7 +274,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 200}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 46
+  controlID: 96
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -1402,8 +1402,8 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 005a0000
-      m_LastClickedID: 23040
+      m_SelectedIDs: 2c5a0000
+      m_LastClickedID: 0
       m_ExpandedIDs: 38fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
@@ -1686,9 +1686,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 326.30518, y: -22.801151, z: -358.07147}
+    m_Target: {x: 193.3338, y: -32.1243, z: -149.14583}
     speed: 2
-    m_Value: {x: 326.30518, y: -22.801151, z: -358.07147}
+    m_Value: {x: 193.3338, y: -32.1243, z: -149.14583}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1705,7 +1705,7 @@ MonoBehaviour:
     showImageEffects: 1
     showParticleSystems: 1
     showVisualEffectGraphs: 1
-    m_FxEnabled: 1
+    m_FxEnabled: 0
   m_Grid:
     xGrid:
       m_Fade:
@@ -1735,13 +1735,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.14794871, y: 0.7698043, z: -0.19272292, w: 0.59037966}
+    m_Target: {x: -0.0029060189, y: 0.9382534, z: -0.34610665, w: -0.00823944}
     speed: 2
-    m_Value: {x: 0.14822447, y: 0.76884955, z: -0.1924837, w: 0.5914812}
+    m_Value: {x: -0.0029057495, y: 0.9381664, z: -0.34607455, w: -0.008238676}
   m_Size:
-    m_Target: 308.31268
+    m_Target: 127.38116
     speed: 2
-    m_Value: 295.03607
+    m_Value: 127.38116
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -1820,9 +1820,9 @@ MonoBehaviour:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 725a0000
-    m_LastClickedID: 23154
-    m_ExpandedIDs: 00000000605a000000ca9a3b
+    m_SelectedIDs: 705a0000
+    m_LastClickedID: 23152
+    m_ExpandedIDs: 00000000605a00006e5a000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

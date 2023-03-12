@@ -14,12 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   autoUpdate: 1
   falloff: 1
-  falloffTransition: 1.12
-  falloffBias: 6
-  octaves: 64
-  persistance: 0.774
-  lacunarity: 1.22
-  noiseScale: 100
+  falloffTransition: 1.92
+  falloffBias: 2.47
   offset: {x: 0, y: 0}
   meshHeightMultiplier: 50
   meshHeightCurve:
@@ -55,6 +51,21 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  noiseLayers:
+  - noiseType: 0
+    strenght: 1
+    enabled: 1
+    octaves: 16
+    persistance: 0.831
+    lacunarity: 1.187
+    noiseScale: 100
+  - noiseType: 1
+    strenght: 0.825
+    enabled: 1
+    octaves: 12
+    persistance: 0.94
+    lacunarity: 1
+    noiseScale: 120
   regions:
   - name: 
     height: 0.3

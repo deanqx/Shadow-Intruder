@@ -130,23 +130,6 @@ namespace Terrain
                 DrawMesh(preview.mesh2, mapData.GenerateMeshData(0, chunkSize, preview.LOD2), texture2);
                 DrawMesh(preview.mesh3, mapData.GenerateMeshData(chunkSize, chunkSize, preview.LOD2), texture3);
             }
-            else if (preview.mode == Preview.Mode.FalloffMap)
-            {
-                preview.mesh1.SetActive(true);
-                preview.mesh2.SetActive(true);
-                preview.mesh3.SetActive(true);
-
-                float[,] falloff = noisePreset.GenerateFalloffMap(mapData.verticesX, mapData.verticesY);
-                Texture2D texture0 = TextureGenerator.TextureFromHeightMap(falloff, mapData.verticesX, mapData.verticesY, 0, 0);
-                Texture2D texture1 = TextureGenerator.TextureFromHeightMap(falloff, mapData.verticesX, mapData.verticesY, chunkSize, 0);
-                Texture2D texture2 = TextureGenerator.TextureFromHeightMap(falloff, mapData.verticesX, mapData.verticesY, 0, chunkSize);
-                Texture2D texture3 = TextureGenerator.TextureFromHeightMap(falloff, mapData.verticesX, mapData.verticesY, chunkSize, chunkSize);
-
-                DrawMesh(preview.mesh0, mapData.GenerateMeshData(0, 0, preview.LOD1), texture0);
-                DrawMesh(preview.mesh1, mapData.GenerateMeshData(chunkSize, 0, preview.LOD1), texture1);
-                DrawMesh(preview.mesh2, mapData.GenerateMeshData(0, chunkSize, preview.LOD2), texture2);
-                DrawMesh(preview.mesh3, mapData.GenerateMeshData(chunkSize, chunkSize, preview.LOD2), texture3);
-            }
         }
     }
 }
